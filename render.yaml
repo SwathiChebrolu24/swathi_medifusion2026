@@ -22,7 +22,8 @@ services:
         value: 8000
 
   # Frontend Static Site
-  - type: pserv
+  - type: static
+
 
     name: project1-frontend
     repo: https://github.com/SwathiChebrolu24/swathi_medifusion2026
