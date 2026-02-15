@@ -2,7 +2,7 @@
 const IS_LOCALHOST = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
 // REPLACE 'https://your-backend-url.onrender.com' with your actual Render Backend URL after deployment
-const BACKEND_URL = IS_LOCALHOST ? "http://localhost:8000" : "https://your-backend-url.onrender.com";
+const BACKEND_URL = IS_LOCALHOST ? "http://localhost:8000" : "https://project1-backend-8wnx.onrender.com";
 
 const API_BASE_URL = BACKEND_URL;
 const WS_BASE_URL = BACKEND_URL.replace(/^http/, 'ws');
