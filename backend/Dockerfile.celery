@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt /app/
+
+# Upgrade pip and install dependencies
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy app and workers
+COPY ./app /app/app
+COPY ./app/workers /app/workers
+
+
+# Set environment variable so Python can find modules
+ENV PYTHONPATH=/app
+
+# Run Celery
+CMD ["celery", "-A", "workers.celery_app.celery", "worker", "--loglevel=info"]

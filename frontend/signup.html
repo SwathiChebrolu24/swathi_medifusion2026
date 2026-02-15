@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediFusion - Sign Up</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/auth.css">
+</head>
+
+<body>
+
+    <div class="auth-container">
+        <!-- Left Branding Panel -->
+        <div class="auth-branding">
+            <div class="brand-content">
+                <a href="index.html" class="brand-logo">
+                    <span class="brand-logo-icon">🩺</span> MediFusion
+                </a>
+                <h2 class="brand-tagline">Start Your Health Journey Today</h2>
+                <p class="brand-desc">Join thousands of patients and doctors using AI-powered healthcare to improve
+                    outcomes.</p>
+                <div class="brand-features">
+                    <div class="brand-feature">
+                        <span class="brand-feature-icon">⚡</span>
+                        <span>Instant AI health analysis</span>
+                    </div>
+                    <div class="brand-feature">
+                        <span class="brand-feature-icon">🧪</span>
+                        <span>Seamless lab test booking</span>
+                    </div>
+                    <div class="brand-feature">
+                        <span class="brand-feature-icon">📱</span>
+                        <span>Access anywhere, anytime</span>
+                    </div>
+                    <div class="brand-feature">
+                        <span class="brand-feature-icon">✨</span>
+                        <span>Free to get started</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Form Panel -->
+        <div class="auth-form-panel">
+            <div class="auth-card">
+                <div class="mobile-logo">
+                    <a href="index.html">🩺 MediFusion</a>
+                </div>
+
+                <h2 class="title">Create Account</h2>
+                <p class="subtitle">Join MediFusion Healthcare</p>
+
+                <form id="signupForm">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <input type="text" id="full_name" placeholder="Full Name" required>
+
+                    <select id="role" class="dropdown" required onchange="toggleFields()">
+                        <option value="" disabled selected>Select Your Role</option>
+                        <option value="patient">Patient</option>
+                        <option value="doctor">Doctor</option>
+                    </select>
+
+                    <!-- Dynamic Fields -->
+                    <div id="patientFields" style="display:none;">
+                        <input type="email" id="email" placeholder="Email Address">
+                    </div>
+                    <div id="professionalFields" style="display:none;">
+                        <input type="text" id="license_code" placeholder="License Code (e.g., DOC001)">
+                    </div>
+
+                    <button class="btn-primary" type="submit">Create Account</button>
+                </form>
+
+                <p class="switch-text">
+                    Already have an account? <a href="login.html">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otpModal" class="modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); justify-content:center; align-items:center; z-index:9999;">
+        <div class="modal-content"
+            style="background:#0f1535; border:1px solid rgba(255,255,255,0.08); padding:40px; border-radius:20px; text-align:center; width:380px;">
+            <h3 style="font-family:'Outfit',sans-serif; color:#fff; font-size:22px; margin-bottom:8px;">Verify Email
+            </h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:14px; margin-bottom:16px;">Enter the OTP sent to your email
+            </p>
+            <input type="text" id="otpInput" placeholder="Enter OTP"
+                style="width:100%; padding:14px 18px; margin:8px 0 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.05); color:#fff; font-size:15px; font-family:'Inter',sans-serif;">
+            <button class="btn-primary" onclick="verifyOtp()">Verify OTP</button>
+            <button onclick="closeOtpModal()"
+                style="margin-top:12px; background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:14px; font-weight:600;">Cancel</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function toggleFields() {
+            const role = document.getElementById("role").value;
+            document.getElementById("patientFields").style.display = role === "patient" ? "block" : "none";
+            document.getElementById("professionalFields").style.display = (role === "doctor" || role === "lab") ? "block" : "none";
+        }
+
+        function closeOtpModal() {
+            document.getElementById("otpModal").style.display = "none";
+        }
+
+        document.getElementById("signupForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.querySelector("button[type='submit']");
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Creating account...";
+
+            const role = document.getElementById("role").value;
+            const data = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value,
+                full_name: document.getElementById("full_name").value,
+                role: role
+            };
+
+            if (role === "patient") {
+                data.email = document.getElementById("email").value;
+                if (!data.email) {
+                    alert("Email is required for patients");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalBtnText;
+                    return;
+                }
+            } else {
+                data.license_code = document.getElementById("license_code").value;
+                if (!data.license_code) {
+                    alert("License code is required for doctors");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalBtnText;
+                    return;
+                }
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/signup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (!res.ok) {
+                    alert(result.detail || "Signup failed. Please try again.");
+                    return;
+                }
+
+                if (role === "patient") {
+                    console.log("OTP for testing:", result.otp);
+                    alert(`OTP sent to ${data.email}! (Check console for test OTP)`);
+                    document.getElementById("otpModal").style.display = "flex";
+                    localStorage.setItem("pending_email", data.email);
+                } else {
+                    alert("Signup successful! Please login.");
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Network error. Please check your connection.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+            }
+        });
+
+        async function verifyOtp() {
+            const otpInput = document.getElementById("otpInput");
+            const verifyBtn = document.querySelector("#otpModal button.btn-primary");
+            const originalText = verifyBtn.innerText;
+
+            const otp = otpInput.value;
+            const email = localStorage.getItem("pending_email");
+
+            if (!otp || !email) return alert("Missing OTP or Email");
+
+            verifyBtn.disabled = true;
+            verifyBtn.innerText = "Verifying...";
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/verify-otp?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`, {
+                    method: "POST"
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert("Verification successful! Please login.");
+                    window.location.href = "login.html";
+                } else {
+                    alert(result.detail || "Verification failed. Invalid OTP.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error verifying OTP. Please try again.");
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.innerText = originalText;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

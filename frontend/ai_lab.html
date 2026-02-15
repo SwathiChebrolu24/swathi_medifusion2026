@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab & X-Ray AI - MediFusion</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #0f1535;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent: #667eea;
+            /* Purple for Lab */
+            --accent-glow: rgba(102, 126, 234, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .sidebar-logo span {
+            font-size: 24px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--accent);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(102, 126, 234, 0.15);
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Main */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border-glass);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        /* Mobile */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 14px 20px;
+            background: rgba(10, 14, 39, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 200;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 80px 16px 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <span style="font-weight:800; font-size:20px;">🩺 MediFusion</span>
+        <button onclick="document.getElementById('sidebar').classList.toggle('open')"
+            style="background:none; border:none; color:white; font-size:24px;">☰</button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-logo"><span>🩺</span> MediFusion</a>
+        <nav class="sidebar-nav">
+            <a href="patient_dashboard.html"><span>📊</span> Dashboard</a>
+            <a href="ai_prescription.html"><span>💊</span> Prescription AI</a>
+            <a href="#" class="active"><span>🧪</span> Lab & X-Ray AI</a>
+            <a href="patient_dashboard.html#cases-section"><span>📁</span> My Cases</a>
+            <a href="index.html"><span>🏠</span> Home</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="page-header">
+            <h1 class="page-title">Lab & X-Ray Analyst</h1>
+            <p class="page-subtitle">AI-powered analysis for medical reports and scans</p>
+        </div>
+
+        <!-- X-Ray Section -->
+        <div class="card">
+            <div class="card-title"><span style="font-size:24px">🦴</span> X-Ray Analysis</div>
+            <div class="card-body">
+                <p style="color:var(--text-muted); margin-bottom:20px;">Upload a chest X-Ray (or other scans). AI will
+                    detect abnormalities like Pneumonia.</p>
+                <div class="upload-zone" id="xrayDropZone">
+                    <div style="font-size: 40px; margin-bottom: 12px;">🦴</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 8px;">Upload X-Ray Image</p>
+                    <input type="file" id="xrayInput" accept="image/*" hidden>
+                </div>
+                <div id="xrayResult"
+                    style="display:none; margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab Report Section -->
+        <div class="card">
+            <div class="card-title"><span style="font-size:24px">📄</span> Lab Report Summary</div>
+            <div class="card-body">
+                <p style="color:var(--text-muted); margin-bottom:20px;">Paste your medical report text or values. AI
+                    will summarize key findings.</p>
+                <textarea id="reportInput"
+                    style="width:100%; height:150px; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:10px; padding:15px; color:white;"
+                    placeholder="Paste report text here..."></textarea>
+                <button onclick="analyzeReport()"
+                    style="margin-top:15px; background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer;">Summarize
+                    Report</button>
+                <div id="reportResult"
+                    style="display:none; margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = "http://localhost:8000";
+
+        // X-Ray Logic
+        const xrayZone = document.getElementById('xrayDropZone');
+        const xrayInput = document.getElementById('xrayInput');
+        const xrayResult = document.getElementById('xrayResult');
+
+        xrayZone.addEventListener('click', () => xrayInput.click());
+        xrayInput.addEventListener('change', (e) => { if (e.target.files.length) handleXray(e.target.files[0]); });
+
+        async function handleXray(file) {
+            xrayResult.style.display = 'block';
+            xrayResult.innerHTML = "Analyzing X-Ray...";
+            const fd = new FormData(); fd.append("file", file);
+            try {
+                const res = await fetch(`${API_BASE_URL}/predict-xray`, { method: "POST", body: fd });
+                const data = await res.json();
+                xrayResult.innerHTML = `<strong>Result:</strong> ${data.prediction.prediction || JSON.stringify(data.prediction)}`;
+            } catch (e) { xrayResult.innerHTML = "Error analyzing X-ray"; }
+        }
+
+        // Report Logic
+        async function analyzeReport() {
+            const text = document.getElementById('reportInput').value;
+            const resDiv = document.getElementById('reportResult');
+            if (!text) return;
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = "Summarizing...";
+
+            const fd = new FormData();
+            fd.append("report_text", text);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/summarize-report`, { method: "POST", body: fd });
+                const data = await res.json();
+                resDiv.innerHTML = `<strong>Summary:</strong><br>${data.summary}`;
+            } catch (e) { resDiv.innerHTML = "Error summarizing report"; }
+        }
+    </script>
+</body>
+
+</html>

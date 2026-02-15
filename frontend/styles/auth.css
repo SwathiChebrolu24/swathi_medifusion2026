@@ -1,0 +1,357 @@
+/* ===== CSS VARIABLES ===== */
+:root {
+    --bg-primary: #0a0e27;
+    --bg-secondary: #0f1535;
+    --bg-glass: rgba(255, 255, 255, 0.06);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --accent: #00d4aa;
+    --accent-glow: rgba(0, 212, 170, 0.3);
+    --accent2: #667eea;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --gradient-main: linear-gradient(135deg, #00d4aa 0%, #667eea 50%, #764ba2 100%);
+    --gradient-accent: linear-gradient(135deg, #00d4aa, #00b894);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ===== SPLIT LAYOUT ===== */
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Left Panel - Branding */
+.auth-branding {
+    flex: 1;
+    background: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-branding::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: var(--accent);
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    top: -100px;
+    left: -100px;
+    animation: orbFloat 8s ease-in-out infinite;
+}
+
+.auth-branding::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: var(--accent2);
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.12;
+    bottom: -50px;
+    right: -50px;
+    animation: orbFloat 8s ease-in-out infinite 3s;
+}
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -20px) scale(1.05); }
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 400px;
+}
+
+.brand-logo {
+    font-family: 'Outfit', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    text-decoration: none;
+}
+
+.brand-logo-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-accent);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    -webkit-text-fill-color: white;
+}
+
+.brand-tagline {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 16px;
+}
+
+.brand-desc {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+}
+
+.brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+.brand-feature {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.brand-feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(0, 212, 170, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* Right Panel - Form */
+.auth-form-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: 24px;
+    padding: 44px;
+    backdrop-filter: blur(20px);
+}
+
+/* Logo in card (mobile) */
+.auth-card .mobile-logo {
+    display: none;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-card .mobile-logo a {
+    font-family: 'Outfit', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+}
+
+/* Text */
+.title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-glass);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    transition: all 0.3s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input::placeholder { color: var(--text-muted); }
+
+select {
+    color: var(--text-muted);
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Button */
+.btn-primary {
+    width: 100%;
+    margin-top: 8px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    background: var(--gradient-accent);
+    border: none;
+    border-radius: 12px;
+    color: #0a0e27;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Switch text */
+.switch-text {
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.switch-text a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch-text a:hover {
+    text-decoration: underline;
+}
+
+/* Dropdown styling */
+.dropdown {
+    margin-top: 0;
+}
+
+/* ===== MODAL (OTP) ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-glass) !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    width: 380px !important;
+    text-align: center;
+}
+
+.modal-content h3 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.modal-content p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.modal-content input {
+    margin: 8px 0 16px !important;
+}
+
+/* ===== RESPONSIVENESS ===== */
+@media (max-width: 900px) {
+    .auth-container {
+        flex-direction: column;
+    }
+
+    .auth-branding {
+        display: none;
+    }
+
+    .auth-card .mobile-logo {
+        display: block;
+    }
+
+    .auth-form-panel {
+        padding: 24px;
+        min-height: 100vh;
+    }
+
+    .auth-card {
+        padding: 32px 24px;
+    }
+}

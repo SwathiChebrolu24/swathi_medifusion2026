@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - MediFusion</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #0f1535;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.3);
+            --accent2: #667eea;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --gradient-accent: linear-gradient(135deg, #00d4aa, #00b894);
+            --gradient-purple: linear-gradient(135deg, #667eea, #764ba2);
+            --gradient-green: linear-gradient(135deg, #48bb78, #38a169);
+            --gradient-orange: linear-gradient(135deg, #ed8936, #dd6b20);
+            --gradient-red: linear-gradient(135deg, #f56565, #e53e3e);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 8px;
+            margin-bottom: 12px;
+            text-decoration: none;
+        }
+
+        .sidebar-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            -webkit-text-fill-color: white;
+        }
+
+        .sidebar-user {
+            padding: 16px 12px;
+            background: var(--bg-glass);
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            margin-bottom: 24px;
+        }
+
+        .sidebar-user-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-user-role {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+        }
+
+        .sidebar-nav a .icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-bottom {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #f56565;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(245, 101, 101, 0.1);
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 212, 170, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+
+        .stat-icon.teal {
+            background: rgba(0, 212, 170, 0.15);
+        }
+
+        .stat-icon.purple {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .stat-icon.green {
+            background: rgba(72, 187, 120, 0.15);
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Health Status Bar */
+        .health-bar {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .health-bar-icon {
+            font-size: 32px;
+        }
+
+        .health-bar-text h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .health-bar-text p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== GRID ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ===== TABS ===== */
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #0a0e27;
+            border-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .form-group input[type="file"],
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="file"]::-webkit-file-upload-button {
+            background: var(--accent);
+            color: #0a0e27;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #0a0e27;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        /* ===== CASES ===== */
+        .cases-section {
+            grid-column: 1 / -1;
+        }
+
+        .case-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 14px;
+            border-left: 3px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .case-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--accent2);
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .case-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .case-date {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .case-body {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .case-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .case-info-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .status-badge,
+        .severity-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            width: fit-content;
+        }
+
+        .status-new {
+            background: rgba(99, 179, 237, 0.2);
+            color: #63b3ed;
+        }
+
+        .status-processed {
+            background: rgba(237, 137, 54, 0.2);
+            color: #ed8936;
+        }
+
+        .status-submitted {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .status-reviewed {
+            background: rgba(72, 187, 120, 0.2);
+            color: #48bb78;
+        }
+
+        .severity-low {
+            background: rgba(72, 187, 120, 0.2);
+            color: #48bb78;
+        }
+
+        .severity-medium {
+            background: rgba(237, 137, 54, 0.2);
+            color: #ed8936;
+        }
+
+        .severity-high {
+            background: rgba(245, 101, 101, 0.2);
+            color: #f56565;
+        }
+
+        .ai-result {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .ai-result-label {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .ai-result-text {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .doctor-review {
+            background: rgba(72, 187, 120, 0.08);
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 3px solid #48bb78;
+            margin-bottom: 14px;
+        }
+
+        .doctor-review-label {
+            font-size: 13px;
+            color: #48bb78;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .doctor-assignment {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .doctor-assignment h4 {
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .assignment-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .assignment-controls select {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .assignment-controls select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-assign {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #0a0e27;
+            background: var(--accent);
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-assign:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-pool {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #0a0e27;
+            background: #ed8936;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-pool:hover {
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 52px;
+            margin-bottom: 16px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(10, 14, 39, 0.3);
+            border-radius: 50%;
+            border-top-color: #0a0e27;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== MOBILE TOGGLE ===== */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 14px 20px;
+            background: rgba(10, 14, 39, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 200;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mobile-header .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.open {
+                display: block;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 80px 16px 28px;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .case-body {
+                grid-template-columns: 1fr;
+            }
+
+            .assignment-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <span class="logo-text">🩺 MediFusion</span>
+        <button class="hamburger" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <span class="sidebar-logo-icon">🩺</span> MediFusion
+        </a>
+
+        <div class="sidebar-user">
+            <div class="sidebar-user-name" id="patientName">Patient</div>
+            <div class="sidebar-user-role">Patient</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="active"><span class="icon">📊</span> Dashboard</a>
+            <a href="ai_prescription.html"><span class="icon">💊</span> Prescription AI</a>
+            <a href="ai_lab.html"><span class="icon">🧪</span> Lab & X-Ray AI</a>
+            <a href="#cases-section"><span class="icon">📁</span> My Cases</a>
+            <a href="index.html"><span class="icon">🏠</span> Home</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button class="btn-logout" onclick="logout()">
+                <span class="icon">🚪</span> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="page-header">
+            <h1 class="page-title">Patient Dashboard</h1>
+            <p class="page-subtitle">Monitor your health and manage cases</p>
+        </div>
+
+        <!-- AI Prescription Analyzer (Moved to ai_prescription.html) -->
+
+        <div class="dashboard-grid">
+            <!-- Health Trends Chart -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📈</span> Health Trends
+                </div>
+                <div class="stat-icon purple">✅</div>
+                <div class="stat-value" id="reviewedCases">0</div>
+                <div class="stat-label">Reviewed</div>
+            </div>
+            <div class="stat-card" id="healthStatus">
+                <div class="stat-icon green">📋</div>
+                <div class="stat-value" style="font-size:20px;">No Data</div>
+                <div class="stat-label">Submit symptoms or X-ray to get started</div>
+            </div>
+        </div>
+
+        <!-- Action Grid -->
+        <div class="dashboard-grid">
+            <!-- Submit New Case -->
+            <div class="card action-section">
+                <div class="card-title">📤 Submit New Case</div>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab('xray')">📸 Upload X-Ray</button>
+                    <button class="tab-btn" onclick="switchTab('symptoms')">📝 Symptoms</button>
+                </div>
+
+                <div id="xray-tab" class="tab-content active">
+                    <div class="form-group">
+                        <label>Select X-Ray Image</label>
+                        <input type="file" id="xrayFile" accept="image/*" onchange="showFileName()">
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                    <button class="btn-primary" id="uploadBtn" onclick="uploadXRay()">Upload & Analyze</button>
+                </div>
+
+                <div id="symptoms-tab" class="tab-content">
+                    <div class="form-group">
+                        <label>Describe Your Symptoms</label>
+                        <textarea id="symptomsInput"
+                            placeholder="E.g., I have been experiencing chest pain and difficulty breathing for the past 3 days..."></textarea>
+                    </div>
+                    <button class="btn-primary" id="symptomsBtn" onclick="submitSymptoms()">Submit & Analyze</button>
+                </div>
+            </div>
+
+            <!-- Quick Info -->
+            <div class="card">
+                <div class="card-title">💡 How It Works</div>
+                <div style="space-y: 16px;">
+                    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:18px;">
+                        <div
+                            style="width:32px;height:32px;border-radius:8px;background:rgba(0,212,170,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">
+                            1</div>
+                        <div>
+                            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Upload or Describe</div>
+                            <div style="font-size:13px;color:var(--text-muted);">Upload an X-ray image or describe your
+                                symptoms in detail.</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:18px;">
+                        <div
+                            style="width:32px;height:32px;border-radius:8px;background:rgba(102,126,234,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">
+                            2</div>
+                        <div>
+                            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">AI Analyzes</div>
+                            <div style="font-size:13px;color:var(--text-muted);">Our AI processes your input and
+                                generates a preliminary analysis.</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:18px;">
+                        <div
+                            style="width:32px;height:32px;border-radius:8px;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">
+                            3</div>
+                        <div>
+                            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Send to Doctor</div>
+                            <div style="font-size:13px;color:var(--text-muted);">Assign your case to a specific
+                                specialist or send to any available doctor.</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:flex-start;">
+                        <div
+                            style="width:32px;height:32px;border-radius:8px;background:rgba(72,187,120,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">
+                            4</div>
+                        <div>
+                            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Get Results</div>
+                            <div style="font-size:13px;color:var(--text-muted);">Receive diagnosis, prescriptions, and
+                                lab test orders from your doctor.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cases List -->
+            <div class="card cases-section" id="cases-section">
+                <div class="card-title">📁 My Cases</div>
+                <div id="casesList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🫁</div>
+                        <p style="font-size: 16px; font-weight: 600;">Loading your cases...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script>
+        // API_BASE_URL is loaded from config.js
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        document.getElementById("patientName").innerText = user.full_name || user.username || "Patient";
+        let allCases = [];
+        let doctorsList = [];
+
+        // Check authentication
+        console.log('Auth check:', { token: token ? 'exists' : 'missing', user: user, role: user?.role });
+        if (!token || !user || user.role !== "patient") {
+            console.error('Auth failed:', { token: !!token, user: !!user, role: user?.role });
+            alert("Please login as a patient");
+            window.location.href = "login.html";
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        // Initialize
+        window.onload = function () {
+            fetchPatientCases();
+            fetchDoctors();
+            connectWebSocket();
+        };
+
+        // WebSocket Connection
+        let ws = null;
+        function connectWebSocket() {
+            if (!user.id || !token) return;
+
+            const wsUrl = `${WS_BASE_URL}/ws/${user.id}?token=${token}`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('✅ WebSocket connected');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('📨 WebSocket message:', data);
+
+                if (data.type === 'case_update') {
+                    showNotification(data.message);
+                    fetchPatientCases(); // Refresh cases
+                } else if (data.type === 'ai_complete') {
+                    showNotification(`AI Analysis Complete: ${data.message}`);
+                    fetchPatientCases(); // Refresh to show results
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('❌ WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('🔌 WebSocket disconnected. Reconnecting in 5s...');
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #00d4aa, #00b894);
+                color: #0a0e27;
+                padding: 15px 25px;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,212,170,0.3);
+                z-index: 10000;
+                font-weight: 600;
+                font-size: 14px;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        function logout() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.clear();
+                window.location.href = "login.html";
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.action-section .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.action-section .tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tab === 'xray') {
+                document.querySelector('.action-section .tab-btn:first-child').classList.add('active');
+                document.getElementById('xray-tab').classList.add('active');
+            } else {
+                document.querySelector('.action-section .tab-btn:last-child').classList.add('active');
+                document.getElementById('symptoms-tab').classList.add('active');
+            }
+        }
+
+        function showFileName() {
+            const fileInput = document.getElementById("xrayFile");
+            const fileNameDiv = document.getElementById("fileName");
+            if (fileInput.files.length > 0) {
+                fileNameDiv.textContent = "✓ Selected: " + fileInput.files[0].name;
+            }
+        }
+
+        async function uploadXRay() {
+            const fileInput = document.getElementById("xrayFile");
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select an X-Ray image first");
+                return;
+            }
+
+            const btn = document.getElementById("uploadBtn");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Uploading & Analyzing...';
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/patient/upload-image`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert("✅ X-Ray uploaded and analyzed successfully!");
+                    fileInput.value = "";
+                    document.getElementById("fileName").textContent = "";
+                    fetchPatientCases();
+                } else {
+                    const result = await res.json();
+                    alert("❌ " + (result.detail || "Upload failed"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Network error. Please check your connection.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        async function submitSymptoms() {
+            const symptoms = document.getElementById("symptomsInput").value.trim();
+            if (!symptoms) {
+                alert("Please describe your symptoms");
+                return;
+            }
+
+            const btn = document.getElementById("symptomsBtn");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/patient/submit-symptoms`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        symptoms: symptoms,
+                        patient_name: user.full_name || user.username,
+                        patient_contact: user.email || "N/A"
+                    })
+                });
+
+                if (res.ok) {
+                    alert("✅ Symptoms submitted and analyzed successfully!");
+                    document.getElementById("symptomsInput").value = "";
+                    fetchPatientCases();
+                } else {
+                    const result = await res.json();
+                    alert("❌ " + (result.detail || "Submission failed"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Network error. Please check your connection.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        async function fetchPatientCases() {
+            const casesList = document.getElementById("casesList");
+            casesList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🫁</div><p style="font-size: 16px; font-weight: 600;">Loading your cases...</p></div>';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/patient/my-cases`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    allCases = await res.json();
+                    console.log("Fetched cases:", allCases);
+                    renderCases(allCases);
+                    updateHealthSummary(allCases);
+                } else {
+                    casesList.innerHTML = '<div class="empty-state"><p style="color: #f56565;">Failed to load cases</p></div>';
+                }
+            } catch (err) {
+                console.error(err);
+                casesList.innerHTML = '<div class="empty-state"><p style="color: #f56565;">Network error loading cases</p></div>';
+            }
+        }
+
+        async function fetchDoctors() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/doctors`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    doctorsList = await res.json();
+                    console.log("Fetched doctors:", doctorsList);
+                }
+            } catch (err) {
+                console.error("Failed to fetch doctors", err);
+            }
+        }
+
+        function generateDoctorOptions() {
+            if (!doctorsList || doctorsList.length === 0) {
+                return '<option value="">No doctors available</option>';
+            }
+            return doctorsList.map(d => `<option value="${d.id}">Dr. ${d.full_name || d.username} (${d.specialization || 'General'})</option>`).join('');
+        }
+
+        function updateHealthSummary(cases) {
+            const totalCases = cases.length;
+            const reviewedCases = cases.filter(c => c.reviewed_by_doctor).length;
+
+            document.getElementById("totalCases").textContent = totalCases;
+            document.getElementById("reviewedCases").textContent = reviewedCases;
+
+            const healthStatus = document.getElementById("healthStatus");
+            if (totalCases === 0) {
+                healthStatus.innerHTML = `
+                    <div class="stat-icon green">📋</div>
+                    <div class="stat-value" style="font-size:20px;">No Data</div>
+                    <div class="stat-label">Submit symptoms or upload X-ray to get started</div>
+                `;
+                return;
+            }
+
+            const latestCase = cases[0];
+            const severity = latestCase.severity_score || 0;
+            let icon, text, desc, bgColor;
+
+            if (severity < 3) {
+                icon = "✅"; text = "Good";
+                desc = "Your health appears normal";
+                bgColor = "rgba(72, 187, 120, 0.15)";
+            } else if (severity < 7) {
+                icon = "⚠️"; text = "Moderate";
+                desc = "Some concerns detected, doctor review recommended";
+                bgColor = "rgba(237, 137, 54, 0.15)";
+            } else {
+                icon = "🚨"; text = "Attention Required";
+                desc = "Immediate doctor consultation recommended";
+                bgColor = "rgba(245, 101, 101, 0.15)";
+            }
+
+            healthStatus.style.background = bgColor;
+            healthStatus.innerHTML = `
+                <div class="stat-icon" style="font-size:24px;">${icon}</div>
+                <div class="stat-value" style="font-size:20px;">${text}</div>
+                <div class="stat-label">${desc}</div>
+            `;
+        }
+
+        function renderCases(cases) {
+            const casesList = document.getElementById("casesList");
+            casesList.innerHTML = "";
+            if (!cases || cases.length === 0) {
+                casesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🫁</div>
+                        <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No cases found</p>
+                        <p style="color: var(--text-muted); font-size: 14px;">Upload an X-Ray or describe your symptoms to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            cases.forEach(c => {
+                const date = new Date(c.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const caseType = c.symptoms ? "Symptom Analysis" : "X-Ray Analysis";
+                const severity = c.severity_score || 0;
+                let severityClass, severityText;
+                if (severity < 3) {
+                    severityClass = "severity-low";
+                    severityText = "Low";
+                } else if (severity < 7) {
+                    severityClass = "severity-medium";
+                    severityText = "Medium";
+                } else {
+                    severityClass = "severity-high";
+                    severityText = "High";
+                }
+                let statusClass = "status-new";
+                if (c.status === "processed") statusClass = "status-processed";
+                if (c.status === "submitted") statusClass = "status-submitted";
+                if (c.status === "reviewed") statusClass = "status-reviewed";
+                let aiResult = c.xray_result || c.symptom_result || {};
+                let aiText = "Pending analysis...";
+                let chartHtml = "";
+                if (typeof aiResult === 'object' && aiResult.predictions) {
+                    const topPredictions = aiResult.predictions.slice(0, 3);
+                    aiText = topPredictions.map(p => `${p.disease}: ${(p.confidence * 100).toFixed(1)}%`).join('<br>');
+                    chartHtml = `<div style="margin-top: 15px; height: 200px; width: 100%;"><canvas id="chart-${c.id}"></canvas></div>`;
+                } else if (typeof aiResult === 'object') {
+                    const label = aiResult.top_label || aiResult.label || "Unknown";
+                    const prob = aiResult.top_prob || aiResult.prob || 0;
+                    aiText = `${label} (${(prob * 100).toFixed(1)}% confidence)`;
+                } else {
+                    aiText = aiResult;
+                }
+                const card = document.createElement("div");
+                card.className = "case-card";
+                let doctorReviewHtml = "";
+                if (c.reviewed_by_doctor) {
+                    doctorReviewHtml = `
+                        <div class="doctor-review">
+                            <div class="doctor-review-label">👨‍⚕️ Doctor's Opinion</div>
+                            <div class="ai-result-text">
+                                <strong>Diagnosis:</strong> ${c.diagnosis || "N/A"}<br>
+                                <strong>Notes:</strong> ${c.doctor_notes || "No notes provided."}
+                            </div>
+                        </div>
+                    `;
+                }
+                let actionHtml = "";
+                if (c.status === "new" || c.status === "processed") {
+                    actionHtml = `
+                        <div class="doctor-assignment">
+                            <h4>👨‍⚕️ Send to Doctor</h4>
+                            <div class="assignment-controls">
+                                <select id="doc-select-${c.id}">
+                                    <option value="">-- Select Specific Doctor --</option>
+                                    ${generateDoctorOptions()}
+                                </select>
+                                <button class="btn-assign" onclick="assignCase(${c.id}, 'specific')">Send</button>
+                                <span style="color: var(--text-muted); font-size: 12px;">OR</span>
+                                <button class="btn-pool" onclick="assignCase(${c.id}, 'pool')">🚀 Send to Any (Fastest)</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (c.status === "submitted") {
+                    if (c.assigned_doctor_id) {
+                        actionHtml = `<div style="margin-top: 10px; color: var(--accent2); font-weight: 500;">⏳ Waiting for Doctor Review</div>`;
+                    } else {
+                        actionHtml = `<div style="margin-top: 10px; color: #ed8936; font-weight: 500;">⏳ In Open Pool (Waiting for any doctor)</div>`;
+                    }
+                }
+                card.innerHTML = `
+                    <div class="case-header">
+                        <div class="case-title">${caseType}</div>
+                        <div class="case-date">${date}</div>
+                    </div>
+                    <div class="case-body">
+                        <div class="case-info">
+                            <div class="case-info-label">Status</div>
+                            <span class="status-badge ${statusClass}">${c.status.toUpperCase()}</span>
+                        </div>
+                        <div class="case-info">
+                            <div class="case-info-label">Severity Score</div>
+                            <span class="severity-badge ${severityClass}">${severityText} (${severity.toFixed(1)}/10)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-result">
+                        <div class="ai-result-label">AI Analysis</div>
+                        <div class="ai-result-text">${aiText}</div>
+                        ${chartHtml}
+                    </div>
+                    ${doctorReviewHtml}
+                    ${actionHtml}
+                `;
+                casesList.appendChild(card);
+                // Render Chart Logic
+                if (typeof aiResult === 'object' && aiResult.predictions) {
+                    const ctx = document.getElementById(`chart-${c.id}`).getContext('2d');
+                    const updates = aiResult.predictions.slice(0, 5);
+
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: updates.map(p => p.disease),
+                            datasets: [{
+                                label: 'Confidence (%)',
+                                data: updates.map(p => (p.confidence * 100).toFixed(1)),
+                                backgroundColor: 'rgba(0, 212, 170, 0.4)',
+                                borderColor: 'rgba(0, 212, 170, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: { color: 'rgba(255,255,255,0.5)' },
+                                    grid: { color: 'rgba(255,255,255,0.05)' }
+                                },
+                                x: {
+                                    ticks: { color: 'rgba(255,255,255,0.5)' },
+                                    grid: { color: 'rgba(255,255,255,0.05)' }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        async function assignCase(caseId, type) {
+            let doctorId = null;
+            if (type === 'specific') {
+                const select = document.getElementById(`doc-select-${caseId}`);
+                doctorId = select.value;
+                if (!doctorId) {
+                    alert("Please select a doctor");
+                    return;
+                }
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/patient/cases/${caseId}/assign`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        doctor_id: doctorId ? parseInt(doctorId) : null
+                    })
+                });
+
+                if (res.ok) {
+                    alert("✅ Case sent to doctor successfully!");
+                    fetchPatientCases();
+                } else {
+                    const result = await res.json();
+                    alert("❌ " + (result.detail || "Assignment failed"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Network error");
+            }
+        }
+        // ----------------------------------------------------------------
+
+    </script>
+</body>
+
+</html>
