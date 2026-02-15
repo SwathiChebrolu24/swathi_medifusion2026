@@ -21,20 +21,6 @@ services:
       - key: PORT
         value: 8000
 
-  # Frontend Static Site
-  - type: static
-
-
-    name: project1-frontend
-    repo: https://github.com/SwathiChebrolu24/swathi_medifusion2026
-    rootDir: frontend
-    buildCommand: echo "No build command"
-    staticPublishPath: .
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-cache
-
 databases:
   - name: medical_system_db
     plan: free
