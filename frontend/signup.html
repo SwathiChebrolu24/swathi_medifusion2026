@@ -95,6 +95,8 @@
             <input type="text" id="otpInput" placeholder="Enter OTP"
                 style="width:100%; padding:14px 18px; margin:8px 0 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.05); color:#fff; font-size:15px; font-family:'Inter',sans-serif;">
             <button class="btn-primary" onclick="verifyOtp()">Verify OTP</button>
+            <button onclick="resendOtp()"
+                style="margin-top:12px; background:none; border:none; color:#00d4aa; cursor:pointer; font-size:14px; font-weight:600;">Resend OTP</button>
             <button onclick="closeOtpModal()"
                 style="margin-top:12px; background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:14px; font-weight:600;">Cancel</button>
         </div>
@@ -110,6 +112,22 @@
 
         function closeOtpModal() {
             document.getElementById("otpModal").style.display = "none";
+        }
+
+        async function resendOtp() {
+            const email = localStorage.getItem("pending_email");
+            if (!email) return alert("Missing email. Please sign up again.");
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/resend-otp?email=${encodeURIComponent(email)}`, {
+                    method: "POST"
+                });
+                const result = await res.json();
+                alert(res.ok ? "A new OTP was sent. Check your inbox and spam folder." : (result.detail || "Unable to resend OTP."));
+            } catch (error) {
+                console.error(error);
+                alert("Network error. Please try again.");
+            }
         }
 
         document.getElementById("signupForm").addEventListener("submit", async (e) => {
