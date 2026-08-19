@@ -66,7 +66,7 @@
                     </select>
 
                     <!-- Dynamic Fields -->
-                    <div id="patientFields" style="display:none;">
+                    <div id="patientFields">
                         <input type="email" id="email" placeholder="Email Address">
                     </div>
                     <div id="professionalFields" style="display:none;">
@@ -79,6 +79,11 @@
                 <p class="switch-text">
                     Already have an account? <a href="login.html">Sign in</a>
                 </p>
+                <div style="margin-top:18px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.08);">
+                    <p style="color:rgba(255,255,255,0.6); font-size:13px; margin-bottom:10px;">Already signed up but waiting for verification?</p>
+                    <input type="email" id="pendingEmail" placeholder="Your signup email">
+                    <button type="button" class="btn-primary" style="margin-top:10px;" onclick="openOtpForEmail()">Enter OTP</button>
+                </div>
             </div>
         </div>
     </div>
@@ -106,12 +111,21 @@
     <script>
         function toggleFields() {
             const role = document.getElementById("role").value;
+            const emailInput = document.getElementById("email");
             document.getElementById("patientFields").style.display = role === "patient" ? "block" : "none";
+            emailInput.required = role === "patient";
             document.getElementById("professionalFields").style.display = (role === "doctor" || role === "lab") ? "block" : "none";
         }
 
         function closeOtpModal() {
             document.getElementById("otpModal").style.display = "none";
+        }
+
+        function openOtpForEmail() {
+            const email = document.getElementById("pendingEmail").value.trim();
+            if (!email) return alert("Enter the email used during signup.");
+            localStorage.setItem("pending_email", email);
+            document.getElementById("otpModal").style.display = "flex";
         }
 
         async function resendOtp() {
