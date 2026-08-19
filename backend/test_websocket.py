@@ -4,6 +4,11 @@ Tests if WebSocket notifications are sent when doctor accepts a case
 """
 import requests
 import json
+import sys
+
+if "pytest" in sys.modules:
+    import pytest
+    pytest.skip("Manual integration script; run directly instead", allow_module_level=True)
 
 API_BASE = "http://localhost:8000"
 
