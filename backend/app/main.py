@@ -17,6 +17,9 @@ from app.models.user import User
 from app.models.base import Base
 from app.core.database import engine, get_db
 from app.core.schema_migrations import migrate_schema
+from sqlalchemy.exc import OperationalError
+from urllib.parse import urlparse
+import time
 from app.api.auth.routes import router as auth_router
 from app.api.patient.routes import router as patient_router
 from app.api.doctor.routes import router as doctor_router
@@ -83,23 +86,59 @@ app.add_middleware(
 )
 
 # ---------------------------------------------------
-# Database setup
+# Database setup with retry and clearer logging
 # ---------------------------------------------------
 DEV_MODE = os.getenv("DEV_MODE", "false").lower() in ("1", "true", "yes")
 
-try:
-    if DEV_MODE:
-        logger.warning("⚠️  DEV_MODE is ON: resetting database...")
-        Base.metadata.drop_all(bind=engine)
-        Base.metadata.create_all(bind=engine)
-        logger.info("✅ Database reset complete")
-    else:
-        Base.metadata.create_all(bind=engine)
-        migrate_schema()
-        logger.info("✅ Database tables ensured")
-except Exception as e:
-    logger.error("❌ Database setup error: %s", e)
-    raise
+def _db_host_from_url(url: str) -> str:
+    try:
+        parsed = urlparse(url)
+        host = parsed.hostname or "<unknown>"
+        port = parsed.port or ""
+        return f"{host}:{port}" if port else host
+    except Exception:
+        return "<unparsable>"
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./medifusion.db")
+
+max_retries = 5
+delay_seconds = 3
+last_exc = None
+for attempt in range(1, max_retries + 1):
+    try:
+        if DEV_MODE:
+            logger.warning("⚠️  DEV_MODE is ON: resetting database...")
+            Base.metadata.drop_all(bind=engine)
+            Base.metadata.create_all(bind=engine)
+            logger.info("✅ Database reset complete")
+        else:
+            # Try a lightweight connection to ensure DB hostname resolves/accepts connections
+            try:
+                with engine.connect() as conn:
+                    pass
+            except OperationalError as oe:
+                host_info = _db_host_from_url(DATABASE_URL)
+                logger.warning("Database connection attempt %d/%d failed to %s: %s", attempt, max_retries, host_info, oe)
+                last_exc = oe
+                if attempt < max_retries:
+                    time.sleep(delay_seconds)
+                    continue
+                else:
+                    raise
+
+            Base.metadata.create_all(bind=engine)
+            migrate_schema()
+            logger.info("✅ Database tables ensured")
+        break
+    except Exception as e:
+        logger.error("❌ Database setup error on attempt %d/%d: %s", attempt, max_retries, e)
+        last_exc = e
+        if attempt >= max_retries:
+            # Provide a helpful runtime hint for production DNS/connectivity issues
+            host_info = _db_host_from_url(DATABASE_URL)
+            logger.error("Unable to connect to database host '%s'. Check your DATABASE_URL, network/DNS settings, and that the DB allows connections from this service.", host_info)
+            raise
+        time.sleep(delay_seconds)
 
 # ---------------------------------------------------
 # Routers
