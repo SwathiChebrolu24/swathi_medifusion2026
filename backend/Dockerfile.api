@@ -20,4 +20,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 # Copy app code
 COPY ./app /app/app
 
+# Force image refresh when the deployment revision changes.
+RUN echo "MediFusion backend revision 1592e98"
+
 CMD ["sh", "-c", "python -c 'from app.core.init_db import init; init()' && python -c 'from app.core.schema_migrations import migrate_schema; migrate_schema()' && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]
