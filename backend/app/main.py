@@ -48,6 +48,10 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------
 app = FastAPI(title="MediFusion Backend")
 
+@app.get("/")
+def root_status():
+    return {"status": "ok", "message": "MediFusion API is running"}
+
 # ---------------------------------------------------
 # Prometheus Instrumentation
 # ---------------------------------------------------
