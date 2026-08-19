@@ -99,6 +99,7 @@ try:
         logger.info("✅ Database tables ensured")
 except Exception as e:
     logger.error("❌ Database setup error: %s", e)
+    raise
 
 # ---------------------------------------------------
 # Routers
