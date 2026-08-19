@@ -61,6 +61,7 @@
                         <option value="">Select Role</option>
                         <option value="patient">Patient</option>
                         <option value="doctor">Doctor</option>
+                        <option value="lab">Lab Technician</option>
                     </select>
                     <button class="btn-primary" type="submit">Sign In</button>
                 </form>
@@ -93,8 +94,7 @@
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams({
                         username,
-                        password,
-                        scope: role
+                        password
                     })
                 });
 
@@ -119,10 +119,17 @@
                 const userData = await userRes.json();
                 localStorage.setItem("user", JSON.stringify(userData));
 
-                if (userData.role === "patient") window.location.href = "patient_dashboard.html";
-                else if (userData.role === "doctor") window.location.href = "doctor_dashboard.html";
-                else if (userData.role === "lab" || userData.role === "labor" || userData.role === "lab_tech") window.location.href = "lab_dashboard.html";
-                else alert("Unknown role. Contact admin.");
+                if (userData.role === "patient") {
+                    window.location.href = "patient_dashboard.html";
+                } else if (userData.role === "doctor") {
+                    window.location.href = "doctor_dashboard.html";
+                } else if (userData.role === "lab") {
+                    window.location.href = "lab_dashboard.html";
+                } else if (userData.role === "admin") {
+                    window.location.href = "admin_dashboard.html";
+                } else {
+                    alert("Login successful! Role: " + userData.role);
+                }
 
             } catch (err) {
                 console.error(err);

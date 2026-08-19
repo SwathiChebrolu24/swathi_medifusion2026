@@ -6,16 +6,14 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
-    wget \
     curl \
     libglib2.0-0 \
  && rm -rf /var/lib/apt/lists/*
 
-# Install PyTorch CPU-only (official index)
-RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
-    torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0
+# NOTE: PyTorch removed — all AI is handled via Google Gemini API (no local models needed)
+# This reduces image size by ~800MB
 
-# Copy & install requirements
+# Copy & install Python requirements
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 

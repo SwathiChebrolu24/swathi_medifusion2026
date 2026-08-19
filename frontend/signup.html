@@ -161,8 +161,7 @@
                 }
 
                 if (role === "patient") {
-                    console.log("OTP for testing:", result.otp);
-                    alert(`OTP sent to ${data.email}! (Check console for test OTP)`);
+                    alert(`OTP sent to ${data.email}! Please check your inbox and enter the code below.`);
                     document.getElementById("otpModal").style.display = "flex";
                     localStorage.setItem("pending_email", data.email);
                 } else {
