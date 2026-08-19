@@ -1,10 +1,8 @@
 # app/api/auth/routes.py
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Header
+from fastapi import APIRouter, HTTPException, Depends, Header
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Dict, Union
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-import random
 import logging
 
 from app.schemas.user_schema import UserCreate, UserOut
@@ -19,28 +17,21 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 DOCTOR_LICENSES = [f"DOC{str(i).zfill(3)}" for i in range(1, 22)]
 LAB_LICENSES    = [f"LAB{str(i).zfill(3)}" for i in range(1, 22)]
 
-OTP_EXPIRY_MINUTES = 10  # OTP valid for 10 minutes
-
-
 # --------------------------------------------------
 # Helpers
 # --------------------------------------------------
 def get_user_by_username(db: Session, username: str):
     return db.query(UserModel).filter(UserModel.username == username).first()
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(UserModel).filter(UserModel.email == email).first()
-
-
 # --------------------------------------------------
 # Signup
 # --------------------------------------------------
 @router.post("/signup", response_model=Union[UserOut, Dict])
-def signup(user: UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def signup(user: UserCreate, db: Session = Depends(get_db)):
     """
     Signup for doctor / lab / patient.
     - Doctor & Lab: require license_code
-    - Patient: require email → OTP sent
+    - Patient: signup is immediately active
     """
     # --------- DOCTOR ---------
     if user.role == "doctor":
@@ -90,105 +81,23 @@ def signup(user: UserCreate, background_tasks: BackgroundTasks, db: Session = De
 
     # --------- PATIENT ---------
     if user.role == "patient":
-        if not user.email:
-            raise HTTPException(status_code=400, detail="Email is required for patient signup")
         if get_user_by_username(db, user.username):
             raise HTTPException(status_code=400, detail="Username already exists")
-        if get_user_by_email(db, user.email):
-            raise HTTPException(status_code=400, detail="Email already registered")
-
-        otp = str(random.randint(100000, 999999))
-        now = datetime.utcnow()
 
         db_user = UserModel(
             username=user.username,
             password=hash_password(user.password),
             full_name=user.full_name,
             role="patient",
-            email=user.email,
-            otp=otp,
-            otp_created_at=now,
-            is_verified=False
+            is_verified=True
         )
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
 
-        # Send OTP email in background
-        from app.core.email import send_otp_email
-        background_tasks.add_task(send_otp_email, user.email, otp)
-
-        logger.info(f"OTP sent to {user.email} for user {user.username}")
-        # NOTE: OTP is NOT returned in the response for security
-        return {"message": f"OTP sent to {user.email}. Please verify to complete signup.", "otp_sent": True}
+        return UserOut(id=db_user.id, username=db_user.username, full_name=db_user.full_name, role=db_user.role)
 
     raise HTTPException(status_code=400, detail="Invalid role. Must be 'patient', 'doctor', or 'lab'")
-
-
-# --------------------------------------------------
-# Verify OTP
-# --------------------------------------------------
-@router.post("/verify-otp", response_model=Dict)
-def verify_otp(email: str, otp: str, db: Session = Depends(get_db)):
-    """Verify 6-digit OTP and activate patient account."""
-    user = get_user_by_email(db, email)
-    if not user:
-        raise HTTPException(status_code=400, detail="Email not registered")
-
-    if user.is_verified:
-        return {"message": "Account already verified. Please login."}
-
-    if not user.otp:
-        raise HTTPException(status_code=400, detail="No OTP pending. Please signup again.")
-
-    # Check expiry
-    if user.otp_created_at:
-        age = datetime.utcnow() - user.otp_created_at
-        if age > timedelta(minutes=OTP_EXPIRY_MINUTES):
-            user.otp = None
-            user.otp_created_at = None
-            db.commit()
-            raise HTTPException(status_code=400, detail="OTP expired. Please signup again to get a new OTP.")
-
-    if user.otp != otp:
-        raise HTTPException(status_code=400, detail="Invalid OTP")
-
-    # Activate account
-    user.is_verified = True
-    user.otp = None
-    user.otp_created_at = None
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "message": "Email verified successfully. You can now login.",
-        "user": {"id": user.id, "username": user.username, "full_name": user.full_name, "role": user.role}
-    }
-
-
-# --------------------------------------------------
-# Resend OTP
-# --------------------------------------------------
-@router.post("/resend-otp", response_model=Dict)
-def resend_otp(email: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    """Resend a fresh OTP to the patient's email."""
-    user = get_user_by_email(db, email)
-    if not user:
-        raise HTTPException(status_code=400, detail="Email not registered")
-    if user.is_verified:
-        return {"message": "Account already verified."}
-
-    otp = str(random.randint(100000, 999999))
-    user.otp = otp
-    user.otp_created_at = datetime.utcnow()
-    db.add(user)
-    db.commit()
-
-    from app.core.email import send_otp_email
-    background_tasks.add_task(send_otp_email, user.email, otp)
-
-    return {"message": f"New OTP sent to {email}"}
 
 
 # --------------------------------------------------
@@ -207,7 +116,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not db_user.is_verified:
         raise HTTPException(
             status_code=403,
-            detail="Account not verified. Please check your email for the OTP and verify your account."
+            detail="Account not verified. Please contact support."
         )
 
     if not verify_password(form_data.password, db_user.password):

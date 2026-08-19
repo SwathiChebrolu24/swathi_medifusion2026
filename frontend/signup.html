@@ -65,10 +65,6 @@
                         <option value="doctor">Doctor</option>
                     </select>
 
-                    <!-- Dynamic Fields -->
-                    <div id="patientFields">
-                        <input type="email" id="email" placeholder="Email Address">
-                    </div>
                     <div id="professionalFields" style="display:none;">
                         <input type="text" id="license_code" placeholder="License Code (e.g., DOC001)">
                     </div>
@@ -79,31 +75,7 @@
                 <p class="switch-text">
                     Already have an account? <a href="login.html">Sign in</a>
                 </p>
-                <div style="margin-top:18px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.08);">
-                    <p style="color:rgba(255,255,255,0.6); font-size:13px; margin-bottom:10px;">Already signed up but waiting for verification?</p>
-                    <input type="email" id="pendingEmail" placeholder="Your signup email">
-                    <button type="button" class="btn-primary" style="margin-top:10px;" onclick="openOtpForEmail()">Enter OTP</button>
-                </div>
             </div>
-        </div>
-    </div>
-
-    <!-- OTP Modal -->
-    <div id="otpModal" class="modal"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); justify-content:center; align-items:center; z-index:9999;">
-        <div class="modal-content"
-            style="background:#0f1535; border:1px solid rgba(255,255,255,0.08); padding:40px; border-radius:20px; text-align:center; width:380px;">
-            <h3 style="font-family:'Outfit',sans-serif; color:#fff; font-size:22px; margin-bottom:8px;">Verify Email
-            </h3>
-            <p style="color:rgba(255,255,255,0.6); font-size:14px; margin-bottom:16px;">Enter the OTP sent to your email
-            </p>
-            <input type="text" id="otpInput" placeholder="Enter OTP"
-                style="width:100%; padding:14px 18px; margin:8px 0 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.05); color:#fff; font-size:15px; font-family:'Inter',sans-serif;">
-            <button class="btn-primary" onclick="verifyOtp()">Verify OTP</button>
-            <button onclick="resendOtp()"
-                style="margin-top:12px; background:none; border:none; color:#00d4aa; cursor:pointer; font-size:14px; font-weight:600;">Resend OTP</button>
-            <button onclick="closeOtpModal()"
-                style="margin-top:12px; background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:14px; font-weight:600;">Cancel</button>
         </div>
     </div>
 
@@ -111,37 +83,7 @@
     <script>
         function toggleFields() {
             const role = document.getElementById("role").value;
-            const emailInput = document.getElementById("email");
-            document.getElementById("patientFields").style.display = role === "patient" ? "block" : "none";
-            emailInput.required = role === "patient";
             document.getElementById("professionalFields").style.display = (role === "doctor" || role === "lab") ? "block" : "none";
-        }
-
-        function closeOtpModal() {
-            document.getElementById("otpModal").style.display = "none";
-        }
-
-        function openOtpForEmail() {
-            const email = document.getElementById("pendingEmail").value.trim();
-            if (!email) return alert("Enter the email used during signup.");
-            localStorage.setItem("pending_email", email);
-            document.getElementById("otpModal").style.display = "flex";
-        }
-
-        async function resendOtp() {
-            const email = localStorage.getItem("pending_email");
-            if (!email) return alert("Missing email. Please sign up again.");
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/auth/resend-otp?email=${encodeURIComponent(email)}`, {
-                    method: "POST"
-                });
-                const result = await res.json();
-                alert(res.ok ? "A new OTP was sent. Check your inbox and spam folder." : (result.detail || "Unable to resend OTP."));
-            } catch (error) {
-                console.error(error);
-                alert("Network error. Please try again.");
-            }
         }
 
         document.getElementById("signupForm").addEventListener("submit", async (e) => {
@@ -160,15 +102,7 @@
                 role: role
             };
 
-            if (role === "patient") {
-                data.email = document.getElementById("email").value;
-                if (!data.email) {
-                    alert("Email is required for patients");
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = originalBtnText;
-                    return;
-                }
-            } else {
+            if (role !== "patient") {
                 data.license_code = document.getElementById("license_code").value;
                 if (!data.license_code) {
                     alert("License code is required for doctors");
@@ -192,14 +126,8 @@
                     return;
                 }
 
-                if (role === "patient") {
-                    alert(`OTP sent to ${data.email}! Please check your inbox and enter the code below.`);
-                    document.getElementById("otpModal").style.display = "flex";
-                    localStorage.setItem("pending_email", data.email);
-                } else {
-                    alert("Signup successful! Please login.");
-                    window.location.href = "login.html";
-                }
+                alert("Signup successful! Please login.");
+                window.location.href = "login.html";
             } catch (error) {
                 console.error(error);
                 alert("Network error. Please check your connection.");
@@ -209,40 +137,6 @@
             }
         });
 
-        async function verifyOtp() {
-            const otpInput = document.getElementById("otpInput");
-            const verifyBtn = document.querySelector("#otpModal button.btn-primary");
-            const originalText = verifyBtn.innerText;
-
-            const otp = otpInput.value;
-            const email = localStorage.getItem("pending_email");
-
-            if (!otp || !email) return alert("Missing OTP or Email");
-
-            verifyBtn.disabled = true;
-            verifyBtn.innerText = "Verifying...";
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/auth/verify-otp?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`, {
-                    method: "POST"
-                });
-
-                const result = await res.json();
-
-                if (res.ok) {
-                    alert("Verification successful! Please login.");
-                    window.location.href = "login.html";
-                } else {
-                    alert(result.detail || "Verification failed. Invalid OTP.");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Error verifying OTP. Please try again.");
-            } finally {
-                verifyBtn.disabled = false;
-                verifyBtn.innerText = originalText;
-            }
-        }
     </script>
 
 </body>

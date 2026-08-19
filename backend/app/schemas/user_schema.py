@@ -1,5 +1,5 @@
 # app/schemas/user_schema.py
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
 
 
@@ -9,7 +9,6 @@ class UserCreate(BaseModel):
     full_name: str
     role: str                              # patient | doctor | lab
     license_code: Optional[str] = None    # Required for doctor/lab
-    email: Optional[EmailStr] = None       # Required for patient
 
 
 class UserOut(BaseModel):

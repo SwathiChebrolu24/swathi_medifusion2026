@@ -15,10 +15,7 @@ class User(Base, IdMixin):
     email = Column(String, nullable=True, unique=True, index=True)
     license_code = Column(String, nullable=True, unique=True)  # Unique license per doctor/lab
 
-    # OTP & verification
-    otp = Column(String, nullable=True)                        # Cleared after verify
-    otp_created_at = Column(DateTime, nullable=True)           # For expiry check
-    is_verified = Column(Boolean, default=False)               # True after OTP verify
+    is_verified = Column(Boolean, default=False)
 
     is_doctor = Column(Boolean, default=False)
     is_lab = Column(Boolean, default=False)
