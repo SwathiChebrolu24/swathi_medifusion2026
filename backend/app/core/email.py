@@ -3,26 +3,19 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
 
 def send_otp_email(to_email: str, otp: str):
     """
-    Sends an OTP email using SMTP settings from environment variables.
+    Sends an OTP email through Resend when configured, with Gmail SMTP fallback.
     """
+    resend_api_key = os.getenv("RESEND_API_KEY")
     sender_email = os.getenv("SMTP_USERNAME")
     sender_password = os.getenv("SMTP_PASSWORD")
     smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
-
-    if not sender_email or not sender_password:
-        logger.warning("⚠️ SMTP credentials missing in .env. OTP email NOT sent.")
-        return
-
-    msg = MIMEMultipart()
-    msg['From'] = f"MediFusion <{sender_email}>"
-    msg['To'] = to_email
-    msg['Subject'] = "MediFusion Verification Code"
 
     html_body = f"""
     <html>
@@ -35,13 +28,39 @@ def send_otp_email(to_email: str, otp: str):
                     {otp}
                 </div>
                 <p style="margin-top: 20px;">Use this code to complete your signup. This code will expire in 10 minutes.</p>
-                <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-                    &copy; 2026 MediFusion. All rights reserved.
-                </p>
             </div>
         </body>
     </html>
     """
+
+    if resend_api_key:
+        try:
+            response = requests.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {resend_api_key}"},
+                json={
+                    "from": os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev"),
+                    "to": [to_email],
+                    "subject": "MediFusion Verification Code",
+                    "html": html_body,
+                },
+                timeout=15,
+            )
+            response.raise_for_status()
+            logger.info(f"Email sent successfully through Resend to {to_email}")
+            return
+        except Exception as e:
+            logger.error(f"Failed to send email through Resend to {to_email}: {e}")
+            return
+
+    if not sender_email or not sender_password:
+        logger.warning("⚠️ SMTP credentials missing in .env. OTP email NOT sent.")
+        return
+
+    msg = MIMEMultipart()
+    msg['From'] = f"MediFusion <{sender_email}>"
+    msg['To'] = to_email
+    msg['Subject'] = "MediFusion Verification Code"
 
     msg.attach(MIMEText(html_body, 'html'))
 
