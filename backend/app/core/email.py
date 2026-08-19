@@ -11,6 +11,8 @@ def send_otp_email(to_email: str, otp: str):
     """
     Sends an OTP email through Resend when configured, with Gmail SMTP fallback.
     """
+    brevo_api_key = os.getenv("BREVO_API_KEY")
+    brevo_from_email = os.getenv("BREVO_FROM_EMAIL")
     resend_api_key = os.getenv("RESEND_API_KEY")
     sender_email = os.getenv("SMTP_USERNAME")
     sender_password = os.getenv("SMTP_PASSWORD")
@@ -32,6 +34,26 @@ def send_otp_email(to_email: str, otp: str):
         </body>
     </html>
     """
+
+    if brevo_api_key and brevo_from_email:
+        try:
+            response = requests.post(
+                "https://api.brevo.com/v3/smtp/email",
+                headers={"api-key": brevo_api_key, "Content-Type": "application/json"},
+                json={
+                    "sender": {"email": brevo_from_email, "name": "MediFusion"},
+                    "to": [{"email": to_email}],
+                    "subject": "MediFusion Verification Code",
+                    "htmlContent": html_body,
+                },
+                timeout=15,
+            )
+            response.raise_for_status()
+            logger.info(f"Email sent successfully through Brevo to {to_email}")
+            return
+        except Exception as e:
+            logger.error(f"Failed to send email through Brevo to {to_email}: {e}")
+            return
 
     if resend_api_key:
         try:
